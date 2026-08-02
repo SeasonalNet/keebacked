@@ -1,0 +1,11 @@
+/keebacked
+/dist/
+/coverage.out
+*.test
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+.DS_Store
+keebacked.local.toml

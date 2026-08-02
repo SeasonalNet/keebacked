@@ -1,0 +1,11 @@
+.git
+.github
+.forgejo
+.vscode
+.idea
+keebacked
+dist
+coverage.out
+*.test
+.env
+.env.*

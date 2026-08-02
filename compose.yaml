@@ -1,0 +1,48 @@
+services:
+  keebacked:
+    build:
+      context: .
+      args:
+        VERSION: ${KEEBACKED_VERSION:-v0.1.0}
+        COMMIT: ${KEEBACKED_COMMIT:-unknown}
+        COMMIT_TIME: ${KEEBACKED_COMMIT_TIME:-unknown}
+        MODIFIED: ${KEEBACKED_MODIFIED:-unknown}
+        BUILD_DATE: ${KEEBACKED_BUILD_DATE:-unknown}
+        BUILT_BY: ${KEEBACKED_BUILT_BY:-unknown}
+        BUILD_HOST_OS: ${KEEBACKED_BUILD_HOST_OS:-unknown}
+        BUILD_HOST_KERNEL: ${KEEBACKED_BUILD_HOST_KERNEL:-unknown}
+        SOURCE_URL: ${KEEBACKED_SOURCE_URL:-https://git.seasonalnet.org/SeasonalNet/keebacked}
+    image: ${KEEBACKED_IMAGE:-keebacked:v0.1.0}
+    restart: unless-stopped
+    user: "${KEEBACKED_UID:-1000}:${KEEBACKED_GID:-1000}"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stop_grace_period: 15s
+    volumes:
+      - type: bind
+        source: ${KEEBACKED_CONFIG_FILE:-./config/keebacked.toml}
+        target: /etc/keebacked/keebacked.toml
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${KEEBACKED_SOURCE_DIRECTORY:?set KEEBACKED_SOURCE_DIRECTORY in .env}
+        target: /source
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${KEEBACKED_PRIMARY_TARGET:?set KEEBACKED_PRIMARY_TARGET in .env}
+        target: /targets/primary
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${KEEBACKED_OFFLINE_TARGET:?set KEEBACKED_OFFLINE_TARGET in .env}
+        target: /targets/offline
+        bind:
+          create_host_path: false
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=128m,uid=${KEEBACKED_UID:-1000},gid=${KEEBACKED_GID:-1000},mode=0700

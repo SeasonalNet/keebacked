@@ -1,0 +1,11 @@
+title = "SeasonalNet Gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allow intentionally empty Discord-style environment placeholders"
+regexTarget = "line"
+regexes = [
+  '''(?i)^\s*#?\s*[A-Z0-9_]*DISCORD[A-Z0-9_]*(?:WEBHOOK|SECRET|TOKEN)?\s*=\s*$'''
+]
