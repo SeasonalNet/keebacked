@@ -10,6 +10,10 @@ The project follows Semantic Versioning.
 
 - Forgejo Gitleaks secret scanning with the shared SeasonalNet configuration.
 
+### Fixed
+
+- Quality workflows now provision Go without replacing the runner's Node-capable job image.
+
 ## [0.1.0] - 2026-08-02
 
 ### Added

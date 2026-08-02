@@ -80,6 +80,44 @@ func TestDeploymentExamplesAreHostNeutral(t *testing.T) {
 	}
 }
 
+func TestQualityWorkflowsProvisionNodeCompatibleGo(t *testing.T) {
+	root := filepath.Join("..", "..")
+	checks := map[string][]string{
+		filepath.Join(root, ".forgejo", "workflows", "quality.yml"): {
+			"name: Quality",
+			"runs-on: docker",
+			"uses: actions/checkout@v6",
+			"uses: actions/setup-go@v6",
+			"go-version-file: go.mod",
+			"cache: false",
+			"github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2",
+			`PATH="$PWD/.bin:$PATH" make quality`,
+		},
+		filepath.Join(root, ".github", "workflows", "quality.yml"): {
+			"name: Quality",
+			"runs-on: ubuntu-latest",
+			"uses: actions/checkout@v6",
+			"uses: actions/setup-go@v6",
+			"go-version-file: go.mod",
+			"cache: false",
+			"github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2",
+			`PATH="$PWD/.bin:$PATH" make quality`,
+		},
+	}
+
+	for path, needles := range checks {
+		contents := readRepositoryFile(t, path)
+		for _, needle := range needles {
+			if !strings.Contains(contents, needle) {
+				t.Errorf("%s does not contain %q", path, needle)
+			}
+		}
+		if strings.Contains(contents, "container: golang:") {
+			t.Errorf("%s replaces the Node-capable runner image with a Go-only job container", path)
+		}
+	}
+}
+
 func TestSecurityScanningConfigurationIsPresent(t *testing.T) {
 	root := filepath.Join("..", "..")
 	checks := map[string][]string{
