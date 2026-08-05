@@ -144,4 +144,4 @@ Development workflow, quality gates, versioning, and release-build instructions 
 
 ## License
 
-No license has been selected yet.
+This software is distributed under the AGPLv3 software license. See [`LICENSE`](LICENSE) for details.
