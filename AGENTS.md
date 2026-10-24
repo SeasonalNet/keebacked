@@ -17,7 +17,7 @@
 - Any future IPC must default to a local Unix-domain socket with filesystem access controls.
 - Run without root privileges and without Linux capabilities.
 - Runtime configuration is TOML. Unknown keys must fail validation rather than being ignored.
-- `VERSION` is the authoritative SemVer source. Keep release documentation and default image references synchronized with it.
+- Git `v*` SemVer tags are the authoritative release version source. Untagged builds must retain commit and dirty-state metadata; do not add a manually maintained release version file.
 
 ## Development rules
 

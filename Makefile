@@ -1,11 +1,10 @@
 GO ?= go
 DOCKER ?= docker
 BINARY ?= keebacked
-VERSION_FILE ?= VERSION
-RELEASE_VERSION ?= $(strip $(shell cat $(VERSION_FILE) 2>/dev/null))
-VERSION_TAG ?= v$(RELEASE_VERSION)
+VERSION ?= $(strip $(shell sh tools/version.sh 2>/dev/null))
+VERSION_TAG ?= v$(VERSION)
 IMAGE_REPOSITORY ?= keebacked
-IMAGE_TAG ?= $(VERSION_TAG)
+IMAGE_TAG ?= $(strip $(shell sh tools/version.sh --image-tag '$(VERSION_TAG)' 2>/dev/null))
 IMAGE ?= $(IMAGE_REPOSITORY):$(IMAGE_TAG)
 SOURCE_URL ?= https://git.seasonalnet.org/SeasonalNet/keebacked
 
@@ -30,17 +29,20 @@ LDFLAGS := -s -w \
 
 GOFILES := $(shell find . -type f -name '*.go' -not -path './.git/*')
 
-.PHONY: all build clean fmt fmt-check image lint metadata race test tidy-check quality version version-check vet
+.PHONY: all build clean fmt fmt-check image image-tag lint metadata race test tidy-check quality version version-check vet
 
 all: quality
 
 version-check:
-	@test -f $(VERSION_FILE) || { echo "missing $(VERSION_FILE)" >&2; exit 1; }
-	@test "$$(awk 'END { print NR }' $(VERSION_FILE))" -eq 1 || { echo "$(VERSION_FILE) must contain exactly one line" >&2; exit 1; }
-	@grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$$' $(VERSION_FILE) || { echo "$(VERSION_FILE) must contain one SemVer value without a leading v" >&2; exit 1; }
+	@test -n '$(VERSION)' || { echo 'could not resolve version from Git' >&2; exit 1; }
+	@sh tools/version.sh --image-tag '$(VERSION_TAG)' >/dev/null
+	@sh tools/test-version.sh
 
 version: version-check
 	@printf '%s\n' '$(VERSION_TAG)'
+
+image-tag: version-check
+	@printf '%s\n' '$(IMAGE_TAG)'
 
 metadata: version-check
 	@printf '%-18s %s\n' \

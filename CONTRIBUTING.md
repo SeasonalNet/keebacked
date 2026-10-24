@@ -69,20 +69,20 @@ go run ./cmd/keebacked -config ./keebacked.local.toml
 
 ## Versioning
 
-`keebacked` follows Semantic Versioning. [`VERSION`](VERSION) contains the release number without a leading `v`, for example:
+`keebacked` follows Semantic Versioning. Git `vMAJOR.MINOR.PATCH` tags are the release version authority. A clean tagged build reports the tag; untagged builds report the nearest release tag, commit distance, revision, and dirty state.
 
 ```text
-0.1.0
+v1.2.3
 ```
 
-Git tags, binary version output, and the default image tag use the `v` prefix:
+Binary version output and image tags retain the `v` prefix:
 
 ```text
-v0.1.0
-keebacked:v0.1.0
+v1.2.3
+keebacked:v1.2.3
 ```
 
-Update `VERSION` and [`CHANGELOG.md`](CHANGELOG.md) together as part of an intentional release change. Pre-1.0 releases may make incompatible changes, but those changes must still be documented and versioned deliberately.
+For a release, update applicable [`CHANGELOG.md`](CHANGELOG.md) entries and create an annotated tag on the intended commit. Do not manually bump a version file. Pre-1.0 releases may make incompatible changes, but those changes must still be documented and versioned deliberately.
 
 Check the resolved version and build metadata with:
 
@@ -137,7 +137,7 @@ make image
 The default result is:
 
 ```text
-keebacked:v0.1.0
+keebacked:<version-from-git-tag>
 ```
 
 Publish under another repository name without changing source files:
@@ -157,8 +157,8 @@ The Dockerfile records standard OCI labels for title, description, version, revi
 Inspect the built artifact and labels:
 
 ```bash
-docker run --rm keebacked:v0.1.0 -version
-docker image inspect keebacked:v0.1.0 --format '{{json .Config.Labels}}'
+docker run --rm "keebacked:$(make image-tag)" -version
+docker image inspect "keebacked:$(make image-tag)" --format '{{json .Config.Labels}}'
 ```
 
 `docker compose build` remains available for local use, but its metadata values come from `.env` and default to `unknown`. Use `make image` for correctly derived repository metadata, followed by:
@@ -185,9 +185,9 @@ Prefer the Go standard library. New dependencies must have a concrete operationa
 
 ## Release checklist
 
-1. Update `VERSION` and move applicable `CHANGELOG.md` entries out of `Unreleased`.
+1. Move applicable `CHANGELOG.md` entries out of `Unreleased`.
 2. Run `make quality`.
 3. Run `make image` and inspect the binary version and OCI labels.
 4. Commit the release state.
-5. Create an annotated `vX.Y.Z` Git tag matching `VERSION`.
+5. Create an annotated `vX.Y.Z` Git tag on the release commit.
 6. Publish the versioned image and push the tag through the normal repository workflow.

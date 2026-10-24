@@ -3,7 +3,7 @@ services:
     build:
       context: .
       args:
-        VERSION: ${KEEBACKED_VERSION:-v0.1.0}
+        VERSION: ${KEEBACKED_VERSION:-dev}
         COMMIT: ${KEEBACKED_COMMIT:-unknown}
         COMMIT_TIME: ${KEEBACKED_COMMIT_TIME:-unknown}
         MODIFIED: ${KEEBACKED_MODIFIED:-unknown}
@@ -12,7 +12,7 @@ services:
         BUILD_HOST_OS: ${KEEBACKED_BUILD_HOST_OS:-unknown}
         BUILD_HOST_KERNEL: ${KEEBACKED_BUILD_HOST_KERNEL:-unknown}
         SOURCE_URL: ${KEEBACKED_SOURCE_URL:-https://git.seasonalnet.org/SeasonalNet/keebacked}
-    image: ${KEEBACKED_IMAGE:-keebacked:v0.1.0}
+    image: ${KEEBACKED_IMAGE:-keebacked:dev}
     restart: unless-stopped
     user: "${KEEBACKED_UID:-1000}:${KEEBACKED_GID:-1000}"
     read_only: true

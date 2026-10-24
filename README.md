@@ -4,7 +4,7 @@
 
 It does **not** parse, decrypt, unlock, or modify KDBX data. The source file is treated as opaque bytes. The current implementation is Linux-only because it uses inotify directly.
 
-Current version: **v0.1.0**. Release history is recorded in [`CHANGELOG.md`](CHANGELOG.md).
+Release versions are derived from Git `v*` tags. Untagged builds report the nearest tag, commit distance, and revision. Release history is recorded in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Design
 
@@ -118,13 +118,13 @@ chmod 600 \
   /path/to/offline-target/.keebacked-target
 
 make image
-docker run --rm keebacked:v0.1.0 -version
+docker run --rm "keebacked:$(make image-tag)" -version
 docker compose up -d --no-build
 ```
 
 `docker exec` operates on an existing container, not an image. Use `docker run --rm <image> -version` to inspect an image before deployment.
 
-`make image` builds `keebacked:v0.1.0` from the authoritative [`VERSION`](VERSION) file and injects release and build provenance into the binary and OCI image labels. Override `IMAGE_REPOSITORY` when publishing elsewhere:
+`make image` resolves its version from Git tags and injects release and build provenance into the binary and OCI image labels. Override `IMAGE_REPOSITORY` when publishing elsewhere:
 
 ```bash
 make image IMAGE_REPOSITORY=registry.example.org/example/keebacked

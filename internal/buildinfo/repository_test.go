@@ -3,48 +3,41 @@ package buildinfo
 import (
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"testing"
 )
 
-var semanticVersionPattern = regexp.MustCompile(`^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$`)
-
 func TestReleaseVersionIsConsistent(t *testing.T) {
 	root := filepath.Join("..", "..")
-	version := strings.TrimSpace(readRepositoryFile(t, filepath.Join(root, "VERSION")))
-	if !semanticVersionPattern.MatchString(version) {
-		t.Fatalf("VERSION = %q, want SemVer without a leading v", version)
-	}
-
-	tag := "v" + version
 	checks := map[string][]string{
 		filepath.Join(root, "README.md"): {
-			"Current version: **" + tag + "**",
-			"keebacked:" + tag,
+			"Release versions are derived from Git `v*` tags",
+			"keebacked:$(make image-tag)",
 		},
 		filepath.Join(root, ".env.example"): {
-			"KEEBACKED_IMAGE=keebacked:" + tag,
-			"KEEBACKED_VERSION=" + tag,
+			"KEEBACKED_IMAGE=keebacked:dev",
+			"KEEBACKED_VERSION=dev",
 			"KEEBACKED_SOURCE_URL=",
 		},
 		filepath.Join(root, "CONTRIBUTING.md"): {
-			version,
-			tag,
-			"keebacked:" + tag,
-		},
-		filepath.Join(root, "CHANGELOG.md"): {
-			"[" + version + "]",
+			"Git `vMAJOR.MINOR.PATCH` tags are the release version authority",
+			"Create an annotated `vX.Y.Z` Git tag",
+			"keebacked:$(make image-tag)",
 		},
 		filepath.Join(root, "compose.yaml"): {
-			"KEEBACKED_VERSION:-" + tag,
-			"KEEBACKED_IMAGE:-keebacked:" + tag,
+			"KEEBACKED_VERSION:-dev",
+			"KEEBACKED_IMAGE:-keebacked:dev",
 			"SOURCE_URL: ${KEEBACKED_SOURCE_URL:-",
 		},
 		filepath.Join(root, "Makefile"): {
-			"VERSION_FILE ?= VERSION",
-			"IMAGE_TAG ?= $(VERSION_TAG)",
+			"VERSION ?= $(strip $(shell sh tools/version.sh",
+			"IMAGE_TAG ?= $(strip $(shell sh tools/version.sh --image-tag",
 			"image: version-check",
+		},
+		filepath.Join(root, "tools", "version.sh"): {
+			"--release)",
+			"git_cmd describe --tags --abbrev=0",
+			"dirty=.dirty",
 		},
 		filepath.Join(root, "Dockerfile"): {
 			"org.opencontainers.image.version",
@@ -60,6 +53,9 @@ func TestReleaseVersionIsConsistent(t *testing.T) {
 				t.Errorf("%s does not contain %q", filepath.Base(path), needle)
 			}
 		}
+	}
+	if _, err := os.Stat(filepath.Join(root, "VERSION")); !os.IsNotExist(err) {
+		t.Fatal("manual VERSION file must not remain the release authority")
 	}
 }
 
@@ -90,7 +86,7 @@ func TestQualityWorkflowsProvisionNodeCompatibleGo(t *testing.T) {
 			"uses: actions/setup-go@v6",
 			"go-version-file: go.mod",
 			"cache: false",
-			"github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2",
+			"github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0",
 			`PATH="$PWD/.bin:$PATH" make quality`,
 		},
 		filepath.Join(root, ".github", "workflows", "quality.yml"): {
@@ -100,7 +96,7 @@ func TestQualityWorkflowsProvisionNodeCompatibleGo(t *testing.T) {
 			"uses: actions/setup-go@v6",
 			"go-version-file: go.mod",
 			"cache: false",
-			"github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2",
+			"github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0",
 			`PATH="$PWD/.bin:$PATH" make quality`,
 		},
 	}
