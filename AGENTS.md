@@ -21,7 +21,7 @@
 
 ## Development rules
 
-- Target Go 1.26.5 unless an approved change updates `go.mod`, `mise.toml`, Docker, and CI together.
+- Target Go 1.27.3, pinned in `go.mod`, `mise.toml`, Docker, and CI.
 - Keep dependencies minimal and justified. Prefer the Go standard library.
 - Preserve deterministic behavior and explicit error handling.
 - Add tests for every change to copy publication, verification, retention, mount/marker validation, event handling, configuration, or logging policy.

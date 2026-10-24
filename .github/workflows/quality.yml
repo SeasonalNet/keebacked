@@ -24,6 +24,9 @@ jobs:
           go-version-file: go.mod
           cache: false
 
+      - name: Scan Go dependencies for vulnerabilities
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 -C cmd/keebacked -scan=module
+
       - name: Install golangci-lint
         run: |
           set -eu

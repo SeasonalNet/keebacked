@@ -4,7 +4,7 @@
 
 The validated development toolchain is:
 
-- Go 1.26.5
+- Go 1.27.3
 - golangci-lint 2.12.2
 - GNU Make
 - Docker with BuildKit for image builds
