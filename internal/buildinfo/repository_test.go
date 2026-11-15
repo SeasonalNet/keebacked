@@ -81,7 +81,7 @@ func TestQualityWorkflowsProvisionNodeCompatibleGo(t *testing.T) {
 	checks := map[string][]string{
 		filepath.Join(root, ".forgejo", "workflows", "quality.yml"): {
 			"name: Quality",
-			"runs-on: docker",
+			"runs-on: [docker, normal, general]",
 			"uses: actions/checkout@v6",
 			"uses: actions/setup-go@v6",
 			"go-version-file: go.mod",
@@ -119,7 +119,7 @@ func TestSecurityScanningConfigurationIsPresent(t *testing.T) {
 	checks := map[string][]string{
 		filepath.Join(root, ".forgejo", "workflows", "security.yml"): {
 			"name: Security",
-			"runs-on: docker",
+			"runs-on: [docker, normal, general]",
 			"GITLEAKS_VERSION: 8.30.1",
 			"uses: actions/checkout@v6",
 			"test -f .gitleaks.toml",

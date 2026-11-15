@@ -13,7 +13,7 @@ permissions:
 jobs:
   quality:
     name: Go quality
-    runs-on: docker
+    runs-on: [docker, normal, general]
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
