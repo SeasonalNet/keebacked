@@ -3,6 +3,7 @@ package buildinfo
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -82,8 +83,6 @@ func TestQualityWorkflowsProvisionNodeCompatibleGo(t *testing.T) {
 		filepath.Join(root, ".forgejo", "workflows", "quality.yml"): {
 			"name: Quality",
 			"runs-on: [docker, normal, general]",
-			"uses: actions/checkout@v6",
-			"uses: actions/setup-go@v6",
 			"go-version-file: go.mod",
 			"cache: false",
 			"github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0",
@@ -92,8 +91,6 @@ func TestQualityWorkflowsProvisionNodeCompatibleGo(t *testing.T) {
 		filepath.Join(root, ".github", "workflows", "quality.yml"): {
 			"name: Quality",
 			"runs-on: ubuntu-latest",
-			"uses: actions/checkout@v6",
-			"uses: actions/setup-go@v6",
 			"go-version-file: go.mod",
 			"cache: false",
 			"github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0",
@@ -108,6 +105,8 @@ func TestQualityWorkflowsProvisionNodeCompatibleGo(t *testing.T) {
 				t.Errorf("%s does not contain %q", path, needle)
 			}
 		}
+		assertPinnedActionVersion(t, contents, "actions/checkout", "v6")
+		assertPinnedActionVersion(t, contents, "actions/setup-go", "v6")
 		if strings.Contains(contents, "container: golang:") {
 			t.Errorf("%s replaces the Node-capable runner image with a Go-only job container", path)
 		}
@@ -121,7 +120,6 @@ func TestSecurityScanningConfigurationIsPresent(t *testing.T) {
 			"name: Security",
 			"runs-on: [docker, normal, general]",
 			"GITLEAKS_VERSION: 8.30.1",
-			"uses: actions/checkout@v6",
 			"test -f .gitleaks.toml",
 			"gitleaks dir . --config .gitleaks.toml --redact --verbose --no-banner",
 		},
@@ -140,6 +138,17 @@ func TestSecurityScanningConfigurationIsPresent(t *testing.T) {
 				t.Errorf("%s does not contain %q", path, needle)
 			}
 		}
+		if strings.HasSuffix(path, ".yml") {
+			assertPinnedActionVersion(t, contents, "actions/checkout", "v6")
+		}
+	}
+}
+
+func assertPinnedActionVersion(t *testing.T, contents, action, version string) {
+	t.Helper()
+	pattern := `(?m)uses: ` + regexp.QuoteMeta(action) + `@[0-9a-f]{40} # ` + regexp.QuoteMeta(version) + `$`
+	if !regexp.MustCompile(pattern).MatchString(contents) {
+		t.Errorf("workflow does not pin %s to an immutable commit for %s", action, version)
 	}
 }
 
